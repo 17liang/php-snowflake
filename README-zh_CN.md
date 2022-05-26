@@ -162,9 +162,26 @@ $snowflake->setSequenceResolver(function ($currentTime) {
     $lastTime = $currentTime;
 
     return $sequence;
-})->id();
+})->id();     
 ```
+（1）通过已经生成的ID解析出时间、机器和序列号：
+```
+public long getSequence(long id) {
+    return id & ~(-1L << SEQUENCE_BITS);
+}
 
+public long getWorkerId(long id) {
+    return id >> WORKER_ID_SHIFT & ~(-1L << WORKER_ID_BITS);
+}
+
+public long getDataCenterId(long id) {
+    return id >> DATA_CENTER_ID_SHIFT & ~(-1L << DATA_CENTER_ID_BITS);
+}
+
+public long getGenerateDateTime(long id) {
+    return (id >> TIMESTAMP_LEFT_SHIFT & ~(-1L << 41L)) + twepoch;
+}
+```
 ## License
 
 MIT
